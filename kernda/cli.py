@@ -51,14 +51,27 @@ def add_activation(args):
     with open(input_fn) as f:
         spec = json.load(f)
 
-    executable = spec['argv'][0]
-    bin_dir = dirname(executable)
+    bin_dir = args.conda_env
+    if bin_dir and not os.path.exists(bin_dir):
+        print("{} does not exist".format(bin_dir), file=sys.stderr)
+        print("Aborting kernda", file=sys.stderr)
+        return 1
+
+    if not bin_dir or not os.path.exists(bin_dir):
+        # this is the default behavior
+        print("Getting bin_dir from the kernel spec", file=sys.stderr)
+        executable = spec['argv'][0]
+        bin_dir = dirname(executable)
+
+    if not bin_dir.endswith('bin'):
+        bin_dir += os.path.sep + 'bin'
+    print("bin_dir={}".format(bin_dir), file=sys.stderr)
 
     if not isfile(pjoin(bin_dir, 'activate')):
         print(spec)
         print('''
 Error: Kernel spec does not appear to be using a Python from a conda environment,
-the conda environment is not found, or the kernel spec is already activating the 
+the conda environment is not found, or the kernel spec is already activating the
 conda environment.
 
 Aborted''', file=sys.stderr)
@@ -98,6 +111,8 @@ def cli():
     parser.add_argument('--yes', '-y', dest='yes', action='store_const',
                         const=True, default=False,
                         help='answer yes to all prompts')
+    parser.add_argument("--conda-env", action="store", default=None,
+                        help=("Path to the conda environment that you would like to use."))
     args = parser.parse_args()
     rv = add_activation(args)
     sys.exit(rv)
