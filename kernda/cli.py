@@ -15,7 +15,7 @@ except NameError:
 
 
 def mkdir_p(path):
-    '''Python2/3 mkdir -p'''
+    """Python2/3 mkdir -p"""
     try:
         os.makedirs(path)
     except OSError as ex:
@@ -31,13 +31,25 @@ FULL_CMD_TMPL = 'source "{env_dir}/bin/activate" "{env_dir}" && exec {start_cmd}
 
 
 def prompt(text):
-    '''Prompt for y or n and return True if y.'''
+    """Prompt for y or n and return True if y."""
     print(text + ' [y/N]', end=' ', file=sys.stderr)
     resp = input().lower()
     return resp == 'y'
 
 
 def add_activation(args):
+    """Add conda environment activation to a kernel spec.
+
+    Parameters
+    ----------
+    args: Namespace
+        argparse command line arguments
+
+    Returns
+    -------
+    int
+        Exit code
+    """
     # shortcut for a kernelspec name in the user's home dir
     input_fn = pjoin(USER_KERNELS, args.kernelspec, 'kernel.json')
     if isfile(args.kernelspec):
@@ -100,17 +112,18 @@ Aborted''', file=sys.stderr)
 
 
 def cli():
+    """Parse command line args and execute add_activation."""
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('kernelspec', metavar='kernel.json',
-                        help='kernel spec for a kernel in a conda environment')
-    parser.add_argument('--display_name', dest='display_name', type=str,
-                        help='new display name for the kernel')
+                        help='Kernel spec for a kernel in a conda environment')
+    parser.add_argument('--display-name', dest='display_name', type=str,
+                        help='New display name for the kernel')
     parser.add_argument('--overwrite', '-o', dest='overwrite', action='store_const',
                         const=True, default=False,
-                        help='overwrite the existing kernel spec (default: False, make a new kernel spec)')
+                        help='Overwrite the existing kernel spec (default: False, make a new kernel spec)')
     parser.add_argument('--yes', '-y', dest='yes', action='store_const',
                         const=True, default=False,
-                        help='answer yes to all prompts')
+                        help='Answer yes to all prompts')
     parser.add_argument("--conda-env", action="store", default=None,
                         help=("Path to the conda environment that you would like to use."))
     args = parser.parse_args()
