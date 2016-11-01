@@ -1,6 +1,8 @@
 # kernda
 
-Updates an IPython kernel.json so that it activates its conda environment before launching the kernel process.
+[![PyPI version](https://badge.fury.io/py/kernda.svg)](https://badge.fury.io/py/kernda)
+
+Updates an IPython or IRKernel kernel spec (i.e., kernel.json file) to activate a conda environment before launching the kernel process.
 
 ## Requirements
 
@@ -8,9 +10,7 @@ Updates an IPython kernel.json so that it activates its conda environment before
 
 ## Install
 
-For the moment, install directly from GitHub.
-
-`pip install git+https://github.com/parente/kernda`
+`pip install kernda`
 
 ## Usage
 
