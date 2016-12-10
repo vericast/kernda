@@ -1,5 +1,6 @@
 # kernda
 
+[![Build Status](https://travis-ci.org/parente/conda-mirror.svg?branch=master)](https://travis-ci.org/parente/conda-mirror)
 [![PyPI version](https://badge.fury.io/py/kernda.svg)](https://badge.fury.io/py/kernda)
 
 Updates an IPython or IRKernel kernel spec (i.e., kernel.json file) to activate a conda environment before launching the kernel process.
