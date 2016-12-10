@@ -1,0 +1,4 @@
+pytest
+pexpect
+jupyter_console
+ipykernel
