@@ -1,4 +1,5 @@
-pytest
-pexpect
-jupyter_console
+codecov
 ipykernel
+jupyter_console
+pexpect
+pytest
