@@ -22,12 +22,14 @@ def kernel():
     # unique name for the kernel and environment
     name = str(uuid4())
     env_path = '{}/kernel-env-{name}'.format(gettempdir(), name=name)
-    stdout = pexpect.run('/bin/bash -c "conda create -y -p {env_path} ipykernel && \
-                          source activate {env_path} && \
-                          python -m ipykernel install --user --name {name} && \
-                          jupyter --data-dir"'.format(env_path=env_path, name=name))
-    # jupyter user data path is at the end of the output
-    user_path = stdout.decode('utf-8').split('\n')[-2].strip()
+    pexpect.run('/bin/bash -c "conda create -y -p {env_path} ipykernel && \
+                source activate {env_path} && \
+                python -m ipykernel install --user \
+                --name {name}"'.format(env_path=env_path, name=name))
+    # query jupyter for the user data directory in a separate command to
+    # make parsing easier
+    stdout = pexpect.run('jupyter --data-dir')
+    user_path = stdout.decode('utf-8').strip()
     # the kernel spec resides in the jupyter user data path
     spec_path = os.path.join(user_path, 'kernels', name)
     yield Kernel(name, os.path.join(spec_path, 'kernel.json'), env_path)
