@@ -1,40 +1,14 @@
+"""Adds conda environment activation to a Jupyter kernel spec."""
 from __future__ import print_function
 
 import argparse
-import errno
 import json
 import os
 import sys
 from os.path import join as pjoin, dirname, isfile, expanduser
 
-try:
-    input = raw_input
-except NameError:
-    # python3: input exists, raw_input does not
-    pass
-
-
-def mkdir_p(path):
-    """Python2/3 mkdir -p"""
-    try:
-        os.makedirs(path)
-    except OSError as ex:
-        if ex.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise
-
-# we don't want a dep on jupyter, so here's a hardcode
-USER_KERNELS = expanduser('~/.local/share/jupyter/kernels')
-# form of our activation command
+# Final form of our activation command!
 FULL_CMD_TMPL = 'source "{env_dir}/bin/activate" "{env_dir}" && exec {start_cmd}'
-
-
-def prompt(text):
-    """Prompt for y or n and return True if y."""
-    print(text + ' [y/N]', end=' ', file=sys.stderr)
-    resp = input().lower()
-    return resp == 'y'
 
 
 def add_activation(args):
@@ -50,43 +24,33 @@ def add_activation(args):
     int
         Exit code
     """
-    # shortcut for a kernelspec name in the user's home dir
-    input_fn = pjoin(USER_KERNELS, args.kernelspec, 'kernel.json')
-    if isfile(args.kernelspec):
-        # let a relative or full path reference to a kernel spec
-        # trump th user home dir shortcut
-        input_fn = args.kernelspec
-    elif not isfile(input_fn):
-        print('Kernel spec {} not found'.format(args.kernelspec))
+    input_fn = args.kernelspec
+    if not isfile(input_fn):
+        print('Error: kernel spec {} not found'.format(args.kernelspec))
         return 1
 
     with open(input_fn) as f:
         spec = json.load(f)
 
-    bin_dir = args.conda_env
-    if bin_dir and not os.path.exists(bin_dir):
-        print("{} does not exist".format(bin_dir), file=sys.stderr)
-        print("Aborting kernda", file=sys.stderr)
-        return 1
-
-    if not bin_dir or not os.path.exists(bin_dir):
-        # this is the default behavior
-        print("Getting bin_dir from the kernel spec", file=sys.stderr)
+    # Treat the path provided by the user as the conda environment we
+    # want to activate. If the user did not provide a path, assume the
+    # path containing the conda kernel is the desired environment.
+    bin_dir = args.env_dir
+    if not bin_dir:
         executable = spec['argv'][0]
         bin_dir = dirname(executable)
+    elif bin_dir and not os.path.exists(bin_dir):
+        print("Error: {} does not exist".format(bin_dir), file=sys.stderr)
+        return 1
 
+    # Add the bin subdir to the path if it's not already included.
     if not bin_dir.endswith('bin'):
         bin_dir += os.path.sep + 'bin'
-    print("bin_dir={}".format(bin_dir), file=sys.stderr)
 
     if not isfile(pjoin(bin_dir, 'activate')):
         print(spec)
-        print('''
-Error: Kernel spec does not appear to be using a Python from a conda environment,
-the conda environment is not found, or the kernel spec is already activating the
-conda environment.
-
-Aborted''', file=sys.stderr)
+        print('Error: {} does not contain a conda activate script'.format(bin_dir), 
+              file=sys.stderr)
         return 1
 
     env_dir = dirname(bin_dir)
@@ -97,38 +61,37 @@ Aborted''', file=sys.stderr)
     if args.display_name:
         spec['display_name'] = args.display_name
 
-    # print to stdout so it can be redirected to a file
+    # Print the new kernel spec JSON to stdout for redirection
     print(json.dumps(spec, indent=2))
 
+    # Overwrite the original if requested
     if args.overwrite:
-        if args.yes or prompt('\nOverwrite the original kernel spec?'):
-            with open(input_fn, 'w') as f:
-                json.dump(spec, f, indent=2)
-            print('Wrote to {}'.format(input_fn), file=sys.stderr)
-        else:
-            print('Aborted', file=sys.stderr)
+        with open(input_fn, 'w') as f:
+            json.dump(spec, f, indent=2)
+        print('Wrote to {}'.format(input_fn), file=sys.stderr)
 
     return 0
 
 
-def cli():
+def cli(argv=sys.argv):
     """Parse command line args and execute add_activation."""
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('kernelspec', metavar='kernel.json',
-                        help='Kernel spec for a kernel in a conda environment')
+                        help='Path to a kernel spec')
     parser.add_argument('--display-name', dest='display_name', type=str,
-                        help='New display name for the kernel')
-    parser.add_argument('--overwrite', '-o', dest='overwrite', action='store_const',
+                        help='New display name for the kernel (default: keep \
+                        the original)')
+    parser.add_argument('--overwrite', '-o', dest='overwrite',
+                        action='store_const',
                         const=True, default=False,
-                        help='Overwrite the existing kernel spec (default: False, make a new kernel spec)')
-    parser.add_argument('--yes', '-y', dest='yes', action='store_const',
-                        const=True, default=False,
-                        help='Answer yes to all prompts')
-    parser.add_argument("--conda-env", action="store", default=None,
-                        help=("Path to the conda environment that you would like to use."))
-    args = parser.parse_args()
-    rv = add_activation(args)
-    sys.exit(rv)
+                        help='Overwrite the existing kernel spec (default: \
+                        False, print to stdout')
+    parser.add_argument("--env-dir", action="store", default=None,
+                        help="Path to the conda environment that should \
+                        activate (default: prefix path to the \
+                        kernel in the existing kernel spec file)")
+    args = parser.parse_args(argv)
+    return add_activation(args)
 
 if __name__ == '__main__':
-    cli()
+    sys.exit(cli())

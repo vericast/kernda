@@ -5,12 +5,14 @@ python:
 - 3.4
 - 3.5
 
-install:
+before_install:
 - git clone https://github.com/ericdill/ci ~/scripts
 - . ~/scripts/install-miniconda.sh
+
+install:
 - pip install -r test-requirements.txt
 - pip install -e .
 
 script:
 - kernda -h
-
+- pytest
