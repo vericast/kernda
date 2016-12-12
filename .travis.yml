@@ -10,7 +10,8 @@ before_install:
 
 install:
 - . ~/scripts/install-miniconda.sh
-- conda install python=$TRAVIS_PYTHON_VERSION pip
+- conda create -n testenv-$TRAVIS_PYTHON_VERSION python=$TRAVIS_PYTHON_VERSION pip
+- source activate testenv-$TRAVIS_PYTHON_VERSION
 - pip install -r test-requirements.txt
 - pip install -e .
 
