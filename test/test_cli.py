@@ -3,7 +3,7 @@ import pexpect
 import pytest
 import shutil
 import sys
-from functools import namedtuple
+from collections import namedtuple
 from kernda.cli import cli
 from tempfile import gettempdir
 from uuid import uuid4

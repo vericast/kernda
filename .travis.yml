@@ -7,9 +7,11 @@ python:
 
 before_install:
 - git clone https://github.com/ericdill/ci ~/scripts
-- . ~/scripts/install-miniconda.sh
 
 install:
+- . ~/scripts/install-miniconda.sh
+- conda create -n testenv-$TRAVIS_PYTHON_VERSION python=$TRAVIS_PYTHON_VERSION pip
+- source activate testenv-$TRAVIS_PYTHON_VERSION
 - pip install -r test-requirements.txt
 - pip install -e .
 
