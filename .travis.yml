@@ -17,4 +17,7 @@ install:
 
 script:
 - kernda -h
-- pytest
+- coverage run -m pytest -vrsx
+
+after_success:
+- codecov

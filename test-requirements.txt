@@ -1,4 +1,5 @@
 codecov
+coverage
 ipykernel
 jupyter_console
 pexpect

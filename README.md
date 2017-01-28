@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/maxpoint/kernda.svg?branch=master)](https://travis-ci.org/maxpoint/kernda)
 [![PyPI version](https://badge.fury.io/py/kernda.svg)](https://badge.fury.io/py/kernda)
+[![codecov](https://codecov.io/gh/maxpoint/kernda/branch/master/graph/badge.svg)](https://codecov.io/gh/maxpoint/kernda)
 
 Updates an IPython or IRKernel kernel spec (i.e., kernel.json file) to activate a conda environment before launching the kernel process.
 
