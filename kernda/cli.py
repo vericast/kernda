@@ -73,7 +73,7 @@ def add_activation(args):
     return 0
 
 
-def cli(argv=sys.argv):
+def cli(argv=sys.argv[1:]):
     """Parse command line args and execute add_activation."""
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('kernelspec', metavar='kernel.json',
@@ -90,8 +90,9 @@ def cli(argv=sys.argv):
                         help="Path to the conda environment that should \
                         activate (default: prefix path to the \
                         kernel in the existing kernel spec file)")
-    args = parser.parse_args(argv)
+    args, unknown = parser.parse_known_args(argv)
     return add_activation(args)
+
 
 if __name__ == '__main__':
     sys.exit(cli())
