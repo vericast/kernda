@@ -7,8 +7,9 @@ import os
 import sys
 from os.path import join as pjoin, dirname, isfile, expanduser
 
-# Final form of our activation command!
-FULL_CMD_TMPL = 'source "{env_dir}/bin/activate" "{env_dir}" && exec {start_cmd}'
+# This is the final form the kernel start command will take
+# after running kernda. It's at the module-level for ease of reference only.
+FULL_CMD_TMPL = 'source "{env_dir}/bin/activate" "{env_dir}" && exec {start_cmd} {start_args}'
 
 
 def add_activation(args):
@@ -49,13 +50,14 @@ def add_activation(args):
 
     if not isfile(pjoin(bin_dir, 'activate')):
         print(spec)
-        print('Error: {} does not contain a conda activate script'.format(bin_dir), 
+        print('Error: {} does not contain a conda activate script'.format(bin_dir),
               file=sys.stderr)
         return 1
 
     env_dir = dirname(bin_dir)
     start_cmd = ' '.join(spec['argv'])
-    full_cmd = FULL_CMD_TMPL.format(env_dir=env_dir, start_cmd=start_cmd)
+    full_cmd = FULL_CMD_TMPL.format(env_dir=env_dir, start_cmd=start_cmd,
+                                    start_args=args.start_args)
     spec['argv'] = ['bash', '-c', full_cmd]
 
     if args.display_name:
@@ -79,17 +81,21 @@ def cli(argv=sys.argv[1:]):
     parser.add_argument('kernelspec', metavar='kernel.json',
                         help='Path to a kernel spec')
     parser.add_argument('--display-name', dest='display_name', type=str,
-                        help='New display name for the kernel (default: keep \
-                        the original)')
+                        help='New display name for the kernel (default: keep '
+                        'the original)')
     parser.add_argument('--overwrite', '-o', dest='overwrite',
                         action='store_const',
                         const=True, default=False,
-                        help='Overwrite the existing kernel spec (default: \
-                        False, print to stdout')
+                        help='Overwrite the existing kernel spec (default: '
+                        'False, print to stdout')
     parser.add_argument("--env-dir", action="store", default=None,
-                        help="Path to the conda environment that should \
-                        activate (default: prefix path to the \
-                        kernel in the existing kernel spec file)")
+                        help="Path to the conda environment that should "
+                        "activate (default: prefix path to the "
+                        "kernel in the existing kernel spec file)")
+    parser.add_argument("--start-args", dest="start_args", type=str,
+                        default='',
+                        help="Additional arguments to append to the kernel "
+                        "start command (default: '')")
     args, unknown = parser.parse_known_args(argv)
     return add_activation(args)
 

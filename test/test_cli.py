@@ -68,3 +68,10 @@ def test_overwritten_spec(kernel):
     rv = cli(['-o', kernel.spec])
     assert rv == 0
     assert kernel.env in kernel_conda(kernel)
+
+
+def test_start_args(kernel):
+    """The kernel spec should include additional arguments."""
+    rv = cli(['-o', kernel.spec, '--start-args=--Completer.use_jedi=False'])
+    assert rv == 0
+    assert kernel.env in kernel_conda(kernel)
