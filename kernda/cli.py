@@ -8,7 +8,7 @@ import sys
 from os.path import join as pjoin, dirname, isfile, expanduser
 
 # Final form of our activation command!
-FULL_CMD_TMPL = 'source "{env_dir}/bin/activate" "{env_dir}" && exec {start_cmd}'
+FULL_CMD_TMPL = 'source "{env_dir}/bin/activate" "{env_dir}" && exec {start_cmd} {start_args}'
 
 
 def add_activation(args):
@@ -49,13 +49,14 @@ def add_activation(args):
 
     if not isfile(pjoin(bin_dir, 'activate')):
         print(spec)
-        print('Error: {} does not contain a conda activate script'.format(bin_dir), 
+        print('Error: {} does not contain a conda activate script'.format(bin_dir),
               file=sys.stderr)
         return 1
 
     env_dir = dirname(bin_dir)
     start_cmd = ' '.join(spec['argv'])
-    full_cmd = FULL_CMD_TMPL.format(env_dir=env_dir, start_cmd=start_cmd)
+    full_cmd = FULL_CMD_TMPL.format(env_dir=env_dir, start_cmd=start_cmd,
+                                    start_args=args.start_args)
     spec['argv'] = ['bash', '-c', full_cmd]
 
     if args.display_name:
@@ -90,6 +91,10 @@ def cli(argv=sys.argv[1:]):
                         help="Path to the conda environment that should \
                         activate (default: prefix path to the \
                         kernel in the existing kernel spec file)")
+    parser.add_argument("--start-args", dest="start_args", type=str,
+                        default='',
+                        help="Additional arguments to append to the kernel \
+                        start command (default: none)")
     args, unknown = parser.parse_known_args(argv)
     return add_activation(args)
 
