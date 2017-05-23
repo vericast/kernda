@@ -7,7 +7,8 @@ import os
 import sys
 from os.path import join as pjoin, dirname, isfile, expanduser
 
-# Final form of our activation command!
+# This is the final form the kernel start command will take
+# after running kernda. It's at the module-level for ease of reference only.
 FULL_CMD_TMPL = 'source "{env_dir}/bin/activate" "{env_dir}" && exec {start_cmd} {start_args}'
 
 
@@ -80,21 +81,21 @@ def cli(argv=sys.argv[1:]):
     parser.add_argument('kernelspec', metavar='kernel.json',
                         help='Path to a kernel spec')
     parser.add_argument('--display-name', dest='display_name', type=str,
-                        help='New display name for the kernel (default: keep \
-                        the original)')
+                        help='New display name for the kernel (default: keep '
+                        'the original)')
     parser.add_argument('--overwrite', '-o', dest='overwrite',
                         action='store_const',
                         const=True, default=False,
-                        help='Overwrite the existing kernel spec (default: \
-                        False, print to stdout')
+                        help='Overwrite the existing kernel spec (default: '
+                        'False, print to stdout')
     parser.add_argument("--env-dir", action="store", default=None,
-                        help="Path to the conda environment that should \
-                        activate (default: prefix path to the \
-                        kernel in the existing kernel spec file)")
+                        help="Path to the conda environment that should "
+                        "activate (default: prefix path to the "
+                        "kernel in the existing kernel spec file)")
     parser.add_argument("--start-args", dest="start_args", type=str,
                         default='',
-                        help="Additional arguments to append to the kernel \
-                        start command (default: none)")
+                        help="Additional arguments to append to the kernel "
+                        "start command (default: '')")
     args, unknown = parser.parse_known_args(argv)
     return add_activation(args)
 
