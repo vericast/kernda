@@ -6,7 +6,10 @@ import json
 import os
 import sys
 from os.path import join as pjoin, dirname, isfile, expanduser
-from pipes import quote
+try:
+    from shlex import quote
+except ImportError:
+    from pipes import quote
 
 
 # This is the final form the kernel start command will take
