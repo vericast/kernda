@@ -60,12 +60,12 @@ def add_activation(args):
         return 1
 
     env_dir = dirname(bin_dir)
-    start_cmd = ' '.join(spec['argv'])
+    start_cmd = ' '.join(quote(x) for x in spec['argv'])
     full_cmd = FULL_CMD_TMPL.format(
         env_dir=env_dir,
         start_cmd=start_cmd,
         start_args=args.start_args)
-    spec['argv'] = ['bash', '-c', quote(full_cmd)]
+    spec['argv'] = ['bash', '-c', full_cmd]
 
     if args.display_name:
         spec['display_name'] = args.display_name
