@@ -1,4 +1,5 @@
 import os
+import subprocess
 import pexpect
 import pytest
 import shutil
@@ -22,8 +23,10 @@ def kernel():
     # unique name for the kernel and environment
     name = str(uuid4())
     env_path = '{}/kernel-env-{name}'.format(gettempdir(), name=name)
-    pexpect.run('/bin/bash -c "conda create -y -p {env_path} ipykernel && \
-                source activate {env_path} && \
+    stdout = subprocess.check_output(
+        ["conda", "create", "--yes", "--quiet", "--prefix", env_path, "python=3.6", "ipykernel"])
+
+    stdout = pexpect.run('/bin/bash -c "source activate {env_path} && \
                 python -m ipykernel install --user \
                 --name {name}"'.format(env_path=env_path, name=name))
     # query jupyter for the user data directory in a separate command to
@@ -40,14 +43,27 @@ def kernel_conda(kernel):
     """Run which conda in the test fixture kernel using Jupyter console."""
     jupyter = pexpect.spawn('jupyter', [
         'console',
+        '--simple-prompt',
         '--kernel', kernel.name]
     )
     jupyter.expect('In.*:')
-    jupyter.sendline('!which conda')
+    jupyter.sendline('json_data = !conda info --json')
     # input echo
     jupyter.readline()
-    # path output
+    out = jupyter.readline()
+
+    jupyter.expect('In.*:')
+    jupyter.sendline('import json; json_data = json.loads("".join(json_data))')
+    # input echo
+    jupyter.readline()
+    out = jupyter.readline()
+
+    jupyter.expect('In.*:')
+    jupyter.sendline('json_data["active_prefix"]')
+    # input echo
+    jupyter.readline()# path output
     path = jupyter.readline()
+
     jupyter.close()
     return path.decode('utf-8')
 
