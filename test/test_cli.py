@@ -5,7 +5,7 @@ import pytest
 import shutil
 import sys
 from collections import namedtuple
-from kernda.cli import cli
+from kernda.cli import cli, determine_conda_activate_script
 from tempfile import gettempdir
 from uuid import uuid4
 
@@ -66,6 +66,19 @@ def kernel_conda(kernel):
 
     jupyter.close()
     return path.decode('utf-8')
+
+
+def test_can_retrieve_activate_script():
+    # test with no actual environment given.  This should retrieve the base environment's conda-activate by calling
+    # conda or using the environment variables
+    activate_script = determine_conda_activate_script('.')
+    assert '/bin/activate' in activate_script
+    assert os.path.exists(activate_script)
+
+    # test with an actual environment
+    activate_script = determine_conda_activate_script(sys.prefix)
+    assert '/bin/activate' in activate_script
+    assert os.path.exists(activate_script)
 
 
 def test_overwritten_spec(kernel):
