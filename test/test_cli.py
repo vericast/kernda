@@ -68,17 +68,6 @@ def kernel_conda(kernel):
     return path.decode('utf-8')
 
 
-def test_original_spec(kernel):
-    """The kernel should output a conda path in the test suite environment.
-
-    More of a test of the complicated logic in the test fixture than
-    anything, but it ensures a a good test baseline.
-    """
-    stdout = pexpect.run('which conda')
-    conda_path = stdout.decode('utf-8').strip()
-    assert conda_path.startswith(sys.prefix)
-
-
 def test_overwritten_spec(kernel):
     """The kernel should output a conda path in its own environment."""
     rv = cli(['-o', kernel.spec])
