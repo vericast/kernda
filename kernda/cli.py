@@ -17,11 +17,23 @@ except ImportError:
 # after running kernda. It's at the module-level for ease of reference only.
 FULL_CMD_TMPL = 'source "{activate_script}" "{env_dir}" && exec {start_cmd} {start_args}'
 
-# Since the activate scripts still function we don't actually need to use `conda activate`
-# CONDA_ACTIVATE_TMPL = 'conda activate "{env_dir}" && exec {start_cmd} {start_args}'
-
 
 def determine_conda_activate_script(env_dir):
+    """Finds the correct path to an activate script.
+
+    If no activate script exists or conda is broken / nonexistant this function will raise
+
+    Parameters
+    ----------
+    env_dir : str
+        path to an environment root
+
+    Returns
+    -------
+    str
+        Absolute path to a $PREFIX/bin/activate script
+
+    """
     in_env = pjoin(env_dir, 'bin', 'activate')
     # virtualenv / conda < 4.4
     if os.path.exists(in_env):
@@ -36,7 +48,9 @@ def determine_conda_activate_script(env_dir):
         if sys.version_info[0] >= 3:
             output = output.decode('utf8')
 
-        conda_prefix = json.loads(output)["conda_prefix"]
+        conda_prefix = json.loads(output).get("conda_prefix")
+    if not conda_prefix:
+        raise ValueError("No conda prefix could be determined")
 
     return abspath(pjoin(conda_prefix, 'bin', 'activate'))
 
@@ -77,7 +91,14 @@ def add_activation(args):
     if not bin_dir.endswith('bin'):
         bin_dir += os.path.sep + 'bin'
 
-    activate_script = determine_conda_activate_script(pjoin(bin_dir, '..'))
+    try:
+        activate_script = determine_conda_activate_script(pjoin(bin_dir, '..'))
+    except (subprocess.CalledProcessError, ValueError):
+        print("Error: Could not determine the location of the activation script associated with {}".format(bin_dir),
+              file=sys.stderr)
+        print("       Verify that the `conda` command works in your current shell by running `conda --info`",
+              file=sys.stderr)
+        return 1
 
     env_dir = dirname(bin_dir)
     start_cmd = ' '.join(quote(x) for x in spec['argv'])
