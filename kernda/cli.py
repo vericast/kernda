@@ -91,6 +91,12 @@ def add_activation(args):
     if not bin_dir.endswith('bin'):
         bin_dir += os.path.sep + 'bin'
 
+    # Retrieve the activate script associated with this environment.
+    # This will return {bin_dir}/activate if it exists (conda<4.4, base env or virtualenv), otherwise it will fall back
+    # to the activate script in the current base conda environment.
+    #
+    # In versions of conda > 4.4 environments no longer have their own activate script and rely on the base env
+    # In prior versions of conda this was a symlink in any case to the base env's activate script
     try:
         activate_script = determine_conda_activate_script(pjoin(bin_dir, '..'))
     except (subprocess.CalledProcessError, ValueError):
