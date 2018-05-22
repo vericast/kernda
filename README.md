@@ -47,7 +47,7 @@ kernda ~/.local/share/jupyter/kernels/my_kernel/kernel.json -o
 # to a new file
 kernda /usr/local/share/jupyter/kernels/my_kernel/kernel.json > other_kernel.json
 
-# modify the kerne spec in place so that it activates the
+# modify the kernel spec in place so that it activates the
 # specified conda environment
 kernda ~/some_kernel.json -o --env-dir ~/envs/my_env
 ```
