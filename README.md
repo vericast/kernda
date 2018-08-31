@@ -1,5 +1,6 @@
 # kernda
 
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Build Status](https://travis-ci.org/Valassis-Digital-Media/kernda.svg?branch=master)](https://travis-ci.org/Valassis-Digital-Media/kernda)
 [![PyPI version](https://badge.fury.io/py/kernda.svg)](https://badge.fury.io/py/kernda)
 [![codecov](https://codecov.io/gh/maxpoint/Valassis-Digital-Media/branch/master/graph/badge.svg)](https://codecov.io/gh/Valassis-Digital-Media/kernda)
