@@ -80,8 +80,9 @@ def add_activation(args):
     # want to activate. If the user did not provide a path, assume the
     # path containing the conda kernel is the desired environment.
     bin_dir = args.env_dir
+    original_argv = spec.get("_kernda_original_argv") or spec['argv']
     if not bin_dir:
-        executable = spec['argv'][0]
+        executable = original_argv[0]
         bin_dir = dirname(executable)
     elif bin_dir and not os.path.exists(bin_dir):
         print("Error: {} does not exist".format(bin_dir), file=sys.stderr)
@@ -107,13 +108,14 @@ def add_activation(args):
         return 1
 
     env_dir = dirname(bin_dir)
-    start_cmd = ' '.join(quote(x) for x in spec['argv'])
+    start_cmd = ' '.join(quote(x) for x in original_argv)
     full_cmd = FULL_CMD_TMPL.format(
         activate_script=activate_script,
         env_dir=env_dir,
         start_cmd=start_cmd,
         start_args=args.start_args)
     spec['argv'] = ['bash', '-c', full_cmd]
+    spec['_kernda_original_argv'] = original_argv
 
     if args.display_name:
         spec['display_name'] = args.display_name

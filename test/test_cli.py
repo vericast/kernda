@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import pexpect
@@ -93,3 +94,21 @@ def test_start_args(kernel):
     rv = cli(['-o', kernel.spec, '--start-args=--Completer.use_jedi=False'])
     assert rv == 0
     assert kernel.env in kernel_conda(kernel)
+
+
+def test_idempotent(kernel):
+    """Running kernda twice on the same kernel.json should be idempotent"""
+    with open(kernel.spec, 'r') as fo:
+        original_spec_json = json.load(fo)
+    rv = cli(['-o', kernel.spec])
+    assert rv == 0
+    with open(kernel.spec, 'r') as fo:
+        once_spec_json = json.load(fo)
+    rv = cli(['-o', kernel.spec])
+    assert rv == 0
+    with open(kernel.spec, 'r') as fo:
+        twice_spec_json = json.load(fo)
+
+    assert once_spec_json['_kernda_original_argv'] == original_spec_json['argv']
+    assert twice_spec_json['_kernda_original_argv'] == original_spec_json['argv']
+    assert once_spec_json['argv'] == twice_spec_json['argv']
