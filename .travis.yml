@@ -1,5 +1,5 @@
-language: python
-
+sudo: false
+dist: trusty
 matrix:
   include:
     - name: "Python 2.7 unit tests"
