@@ -16,9 +16,8 @@ before_install:
 
 install:
 - . ~/scripts/install-miniconda.sh
-- conda create -n testenv-$PYTHON python=$PYTHON pip
+- conda create -n testenv-$PYTHON python=$PYTHON pip --file test-requirements.txt
 - source activate testenv-$PYTHON
-- pip install -r test-requirements.txt
 - pip install codecov
 - pip install -e .
 
