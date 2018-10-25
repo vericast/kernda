@@ -1,19 +1,23 @@
-language: python
-
-python:
-- 2.7
-- 3.4
-- 3.5
-- 3.6
+sudo: false
+dist: trusty
+matrix:
+  include:
+    - name: "Python 2.7 unit tests"
+      env: PYTHON=2.7
+    - name: "Python 3.5 unit tests"
+      env: PYTHON=3.5
+    - name: "Python 3.6 unit tests"
+      env: PYTHON=3.6
+    - name: "Python 3.7 unit tests"
+      env: PYTHON=3.7
 
 before_install:
 - git clone https://github.com/ericdill/ci ~/scripts
 
 install:
 - . ~/scripts/install-miniconda.sh
-- conda create -n testenv-$TRAVIS_PYTHON_VERSION python=$TRAVIS_PYTHON_VERSION pip
-- source activate testenv-$TRAVIS_PYTHON_VERSION
-- pip install -r test-requirements.txt
+- conda create -n testenv-$PYTHON python=$PYTHON pip --file test-requirements.txt
+- source activate testenv-$PYTHON
 - pip install codecov
 - pip install -e .
 
