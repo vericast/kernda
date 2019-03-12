@@ -15,7 +15,8 @@ except ImportError:
 
 # This is the final form the kernel start command will take
 # after running kernda. It's at the module-level for ease of reference only.
-FULL_CMD_TMPL = 'source "{activate_script}" "{env_dir}" && exec {start_cmd} {start_args}'
+
+FULL_CMD_TMPL = '{source_or_conda} "{activate_script}" "{env_dir}" && exec {start_cmd} {start_args}'
 
 
 def determine_conda_activate_script(env_dir):
@@ -106,10 +107,12 @@ def add_activation(args):
         print("       Verify that the `conda` command works in your current shell by running `conda --info`",
               file=sys.stderr)
         return 1
-
+    # Use source activate or conda activate, depending on the CLI flag
+    source_or_conda = "conda" if args.conda_activate else "source"
     env_dir = dirname(bin_dir)
     start_cmd = ' '.join(quote(x) for x in original_argv)
     full_cmd = FULL_CMD_TMPL.format(
+        source_or_conda=source_or_conda,
         activate_script=activate_script,
         env_dir=env_dir,
         start_cmd=start_cmd,
@@ -153,6 +156,12 @@ def cli(argv=sys.argv[1:]):
                         default='',
                         help="Additional arguments to append to the kernel "
                         "start command (default: '')")
+    parser.add_argument("--conda-activate", type=bool,
+                        default=False,
+                        help=("Use 'conda /path/to/actiate' (when True) or "
+                              "'source /path/to/activate' (when False). Defaults to "
+                              "False"))
+
     args, unknown = parser.parse_known_args(argv)
     return add_activation(args)
 
