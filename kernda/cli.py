@@ -158,7 +158,7 @@ def cli(argv=sys.argv[1:]):
                         "start command (default: '')")
     parser.add_argument("--conda-activate", type=bool,
                         default=False,
-                        help=("Use 'conda /path/to/actiate' (when True) or "
+                        help=("Use 'conda /path/to/activate' (when True) or "
                               "'source /path/to/activate' (when False). Defaults to "
                               "False"))
 
